@@ -1,5 +1,5 @@
 const config = require('../config/config');
-const MongoClient = require('mongodb').MongoClient;
+let MongoClient = require('mongodb').MongoClient;
 let _db;
 module.exports = {
     connectToServer: async function (callback) {

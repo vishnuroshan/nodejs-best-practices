@@ -1,27 +1,19 @@
 const app = require('express')();
-const bodyParser = require('body-parser');
-const port = process.argv[2] || process.env.PORT || 3000;
-const server = require('http').createServer();
+const http = require('http');
+const port = process.argv[2] || 3000;
+const server = http.createServer();
+const cors = require('cors')
 const mongoUtil = require('./dbconfig/db');
-app.use(bodyParser.json({
-    type: '*/*'
-}));
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-app.use(require('cors'));
-server.listen(port, function () {
-    console.log(server.address().port);
+const ip = 'localhost';
+server.listen(port, ip, function () {
+    console.log(server.address().address + ':' + server.address().port);
 });
+app.use(cors());
+app.disable('x-powered-by');
 server.on('request', app);
 mongoUtil.connectToServer((err) => {
-    if (err) throw err;
-    else {
-        app.get('/', function (req, res) {
-            const db = mongoUtil.getDb();
-            console.log(db);
-            res.send('welcome to node and mongo boilerplate app');
-        });
-    }
-
-});
+    if (err) console.log(err);
+    app.get('/', function (req, res) {
+        res.send('working')
+    });
+})
