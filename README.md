@@ -27,3 +27,13 @@ Doesn't have to follow strictly.
  - Use **===** rather than **==**
 - Write synchronous code with extra care
 - Write reusable codes as modules
+
+## Articles I ripped off ;)
+
+ 1. [bulletproof nodejs architecture ](https://softwareontheroad.com/ideal-nodejs-project-structure/?utm_source=github&utm_medium=readme)
+ 
+ 2. [12 factor app](https://12factor.net/)
+
+ 3. [list of articles and examples about node  best practices](https://github.com/goldbergyoni/nodebestpractices)
+ 
+# Thank You!!
