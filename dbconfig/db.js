@@ -1,4 +1,4 @@
-const config = require('../config/config');
+const config = require('../env/env.prod');
 let MongoClient = require('mongodb').MongoClient;
 let _db;
 module.exports = {
