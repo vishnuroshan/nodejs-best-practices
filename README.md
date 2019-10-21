@@ -1,17 +1,23 @@
 # Node-Mongo-Boilerplate
 
 ## 1. Project Structure
-
- Controller (routes folder) contains express routers. Service layer (library folder) is where the business logic is implemented and data access layer is where the data access is done.
+3 layer architechture
 ![enter image description here](https://softwareontheroad.com/static/cb9704cd54930d69a9617ce7d4b060ef/4fde8/server_layers.jpg)
+
+ ### Controller: (routes folder)
+ Request and response object must be kept inside this layer
+ ### Service layer (library folder)
+ is where the business logic is implemented
+ ### Data access layer (data folder)
+ is where the data access is done.
 
 ## 2. Coding Standards
 Used ESLint as devDependency. with custom configuration see:  [eslintrc.js](https://github.com/vishnuroshan/node-mongo-boilerplate/blob/master/.eslintrc.js)
 Doesn't have to follow strictly.
 ## 3. common Conventions
 
- - Used **lowerCamelCase** for variables
- - Used **uppercase** from string constants and enum keys
+ - Use **lowerCamelCase** for variables
+ - Use **uppercase** from string constants and enum keys
  - Need to prefix _ for unused, but unavoidable variables
  `function (_param1, param2)`
  - Avoid unnecessary variable declaration. Use **const** when read-only
@@ -28,7 +34,7 @@ Doesn't have to follow strictly.
 - Write synchronous code with extra care
 - Write reusable codes as modules
 
-## Articles I ripped off ;)
+## Articles I ripped off :grin:
 
  1. [bulletproof nodejs architecture ](https://softwareontheroad.com/ideal-nodejs-project-structure/?utm_source=github&utm_medium=readme)
  
