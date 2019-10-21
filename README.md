@@ -5,28 +5,37 @@
 ![enter image description here](https://softwareontheroad.com/static/cb9704cd54930d69a9617ce7d4b060ef/4fde8/server_layers.jpg)
 
  ### Controller: (routes folder)
- Request and response object must be kept inside this layer
+ Parse and pass the request to service layer and return response to client
+ Request and response object must be kept inside this layer.
  ### Service layer (library folder)
- is where the business logic is implemented
+ Layer where business logic must be implimented. and data must be sent to data access layer.
  ### Data access layer (data folder)
- is where the data access is done.
+ Layer where DB is accessed. must have the exclusive rights to accesss the database a n make changes to DB
 
 ## 2. Coding Standards
-Used ESLint as devDependency. with custom configuration see:  [eslintrc.js](https://github.com/vishnuroshan/node-mongo-boilerplate/blob/master/.eslintrc.js)
-Doesn't have to follow strictly.
+- learn difference between devDependencies and dependencies and use them accordingly
+
+- Use any linter to enfore coede standards and improve code quality
+
 ## 3. common Conventions
 
  - Use **lowerCamelCase** for variables
+ 
  - Use **uppercase** from string constants and enum keys
+ 
  - Need to prefix _ for unused, but unavoidable variables
  `function (_param1, param2)`
+ 
  - Avoid unnecessary variable declaration. Use **const** when read-only
+ 
  - Avoid **var** declarations
+ 
  - Use **single qoutes** rather than double quotes
 
  - Prefer **templates** in strings (especially in multi-line strings)
  
  - Use promise/async-await
+ 
  - Write modular code
 
  - Use Arrow functions
