@@ -4,16 +4,43 @@ const http = require('http');
 const port = process.argv[2] || 3000;
 const server = http.createServer();
 const mongoUtil = require('./db/db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');	
+
+
 const config = require('./env/env');
-const auth = require('./routes/auth');
-server.listen(port, config.ip, () => {
-	console.log(server.address().address + ':' + server.address().port);
-});
-server.on('request', app);
+
+
+
 mongoUtil.connectToServer((err) => {
-	if (err) console.log(err);
+	if (err) throw err;
+	server.listen(port, config.ip, () => {
+		console.log(server.address().address + ':' + server.address().port);
+	});
+	server.on('request', app);
+
+
 	app.get('/', (req, res) => {
 		res.send('<html><title>Node-mongo-boilerplate</title></html>');
 	});
-	app.use('/auth/', auth);
-});
+	const auth = require('./routes/auth');
+	
+	 app.use('/auth/', auth);
+	
+})
+
+
+
+
+// verifyAuthToken: (req, res, next) => {
+// 	const authHeader =req.headers['authorization']
+// 	const token = authHeader && authHeader.split(' ')[1]
+// 	if (token == null) return res.sendStatus(401)
+
+// 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
+// 	  console.log(err)
+// 	  if (err) return res.sendStatus(402)
+// 	  req.email = email
+// 	  next()
+// 	})
+//   }
