@@ -2,40 +2,23 @@ require('dotenv').config()
 const jwt = require('jsonwebtoken');	
 const bcrypt = require('bcryptjs');
 const authLibrary = require('../library/auth-lib');
-
-let refreshTokens = []
-
 const db = require('../db/db').getDb();
 const bodyParser = require('../middlewares/bodyParser');
 
-
-
-
-
+let refreshTokens = []
 const ex = {};
 
 ex.signup = (username,email, hash) => {
-
 const temp = {username,email,hash};
-
-//console.log(temp);
-	//console.log("data server");
-	
-	
 	return new Promise((resolve, reject) => {
 		db.collection("Users").insertOne(temp, function(err, document) {
 			if(err) throw err;
 			console.log(username, email);
 			console.log("Account created!!!");
 			return resolve();
-			
-		});
-		
+		});		
 	});
 };
-
-
-
 
 ex.login = (username, password) => {
 	return new Promise((resolve, reject) => {
@@ -50,7 +33,6 @@ ex.login = (username, password) => {
 		})
 	})
 }
-
 
 ex.resetpass = (username, oldpass, newpass) => {
 	return new Promise((resolve, reject) => {
@@ -112,7 +94,6 @@ ex.addmoney = (email,balance) => {
 	})
 }
 
-
 ex.addproduct = (productname,productprice,availablestock) => {
 	const t = {productname,productprice,availablestock}
 	return new Promise((resolve, reject) => {
@@ -123,8 +104,6 @@ ex.addproduct = (productname,productprice,availablestock) => {
 		// do something and return the data in resolve
 	});
 };
-
-
 
 ex.listproducts = () => {
 	return new Promise ((resolve,reject) => {
@@ -146,29 +125,101 @@ ex.removeproduct = (productname) => {
 	})
 }
 
-ex.checkstock = (productname) => {
-	const q = {productname: productname};
-	return new Promise ((resolve,reject) => {
-		db.collection('products').find(q,function(err,res){
-			if(err) throw err;
-			console.log(res.result);
-			return resolve(res);
+ex.addtocart = (userId,product) => {
+	const k = product.length;
+	console.log(k);
+	let sum = 0;
+	return new Promise ((resolve,reject)=>{
+	for( let i=0;i<k;i++) {
+		db.collection("products").updateMany({product : product[i].productname}, {$inc: {Balance: -product[i].stock}});
+		console.log(product[i].productname, "got updated")
+         const m = product[i].stock * product[i].productprice;
+         sum = sum + m; }
+		 const temp = {
+			"userId": userId,
+			"product": product,
+			"total": sum
+			};
+			console.log(sum);
+			db.collection("Carts").insertOne(temp,function(error,result){
+				if(error)  throw error;
+			   console.log("Data inserted to Carts");
+			   return resolve(result);
+			})
 		})
-	})
 }
 
-
-
-ex.removefromcart = (key,query) => {
-	
+ex.removefromcart = (userId,productname) => {
+	const key = {userId : userId};
+	const query = {$pull: {product: {productname : productname}}};
 	return new Promise ((resolve,reject) => {
 		db.collection("carts").update(key,query,function(error,result){
             if(error)
            throw error;
-         console.log(result);
+         return resolve(result);
         })
+	})
+}
+
+ex.buy = (query) => {
+	const userId = query.userId;
+	return new Promise((resolve,reject) => {
+		if(query.cartId) {
+			const cartId = query.cartId;
+			db.collection("carts").findOne({ "userId": userId },function(err,res){
+				if(err) throw err;
+				db.collection("wallets").updateMany({userId : userId},{$inc:{balance: -res.total}})
+				db.collection("myOrders").insertOne(res,(error,result) =>{
+					if(error) throw error;
+					console.log(result);
+				}
+				)
+				console.log("history");
+				return resolve(res)
+			 
+			});
+
+		} else {
+			const productname = req.query.productname;
+        const productprice = req.query.productprice;
+		const productstock = req.query.productstock;
+		
+		const sum = productstock * productprice;
+        console.log(sum);
+        db.collection("wallets").updateMany({userId : userId},{$inc:{balance: -sum}})
+		console.log("wallet updated")
+		
+		const temp = {
+			"userId": userId,
+			"productname": productname,
+		   " productprice" : productprice,
+		   "productstock": productstock,
+			"total": sum
+			};
+			
+			db.collection("myOrders").insertOne(temp,function(error,result){
+
+				if(error)
+				
+			   throw error;
+			   
+	
+			 return resolve(result);
+			})
+
+		}
+	})
+}
+
+
+ex.myOrders = (userId) => {
+	return new Promise ((resolve,reject) => {
+		db.collection('myOrders').find({"$oid":userId }).toArray(function(err,res){
+			if(err) throw err;
+			return resolve(res);
 		})
-	}
+	})
+}
 
 
 
