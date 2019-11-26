@@ -61,6 +61,7 @@ ex.resetpass = (username, oldpass,newpass) => {
 	return new Promise((resolve, reject) => {
 		//logic
 		authData.resetpass(username, oldpass,newpass).then(result => {
+			return resolve(result);
 		}, err => {
 			return reject(err);
 		});
@@ -175,21 +176,6 @@ ex.addtocart = (userId,product) => {
 
 
 
-ex.removefromcart = (userId,productname) => {
-	return new Promise((resolve,reject) => {
 
-		const key = {userId : userId};
-		const query = {$pull: {product: {productname : productname}}};
-
-		authData.removefromcart(key,query).then(result => {
-			return resolve(result);
-		},err => {
-			return reject(err);
-		
-
-		});
-	});
-
-}
 
 module.exports = ex;
