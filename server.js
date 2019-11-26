@@ -25,10 +25,11 @@ mongoUtil.connectToServer((err) => {
 	});
 	const auth = require('./routes/auth');
 	const wallet = require('./routes/wallet');
+	const products = require('./routes/products');
 	
 	 app.use('/auth/', auth);
 	 app.use('/wallet',wallet);
-	
+	app.use('/products',products);
 })
 
 
