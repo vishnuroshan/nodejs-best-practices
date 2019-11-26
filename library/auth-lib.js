@@ -1,5 +1,6 @@
 require('dotenv').config()
-const jwt = require('jsonwebtoken');	
+const jwt = require('jsonwebtoken');
+
 
 
 const ex = {};
@@ -8,57 +9,187 @@ const bodyParser = require('../middlewares/bodyParser');
 const authData = require('../data/auth-data');
 const bcrypt = require('bcryptjs');
 
+function generateAccessToken(username) {
+	return jwt.sign(username, process.env.ACCESS_TOKEN_SECRET)
+  }
+
 
 
 ex.signup = (username,email,password) => {
+ 
 	return new Promise((resolve,reject) => {
 		
 		const hash = bcrypt.hashSync(password, 10);
 		//console.log(hash);
 		authData.signup(username,email,hash).then(result => {
-			return resolve(username); 
-			
+			console.log(hash);
+			return resolve("from library"); 
 		}, err => {
 			return reject(err);
 		});
 	});
-
 };
 
-ex.login = (name, password) => {
+
+
+
+ex.login = (username, password) => {
 	return new Promise((resolve, reject) => {
-			console.log("logged in");
-		authData.login(name, password).then(
+		authData.login(username,password).then(result => {
+				console.log(result);
 
-		function(samePassword) {
-			if(!samePassword) {
-				res.status(403).send();
+			if(bcrypt.compareSync(password,result))
+			{
+				console.log("matched");
+
+				let accesstoken = generateAccessToken(username)
+                let refreshtoken = jwt.sign(username, process.env.REFRESH_TOKEN_SECRET)
+         		    refreshTokens.push(refreshtoken)
+ 					console.log("true");			
+					return resolve(refreshToken,accesstoken);
+			} else {
+				console.log("not matched");
 			}
-			res.send([accesstoken,refreshTokens]);
-		}
-	)
-		.catch(function(error){
-			console.log("Error authenticating user: ");
-			console.log(error);
-			
-			console.log([accesstoken,refreshTokens]);
 
-			return resolve("hlo");
-		}, err => {
-			return reject(err);
-		})
-	})
-}
+	 	})
+	 })
+	}
+	
+	
 
-ex.resetpass = (name, oldpass,newpass) => {
+ex.resetpass = (username, oldpass,newpass) => {
 	return new Promise((resolve, reject) => {
 		//logic
 		authData.resetpass(username, oldpass,newpass).then(result => {
+		}, err => {
+			return reject(err);
+		});
+	});
+}
+
+
+ex.createwallet = (userId,email,balance) => {
+	return new Promise((resolve, reject) => {
+		// do your buisness login here
+		authData.createwallet(userId, email,balance).then(result => {
 			return resolve(result);
 		}, err => {
 			return reject(err);
 		});
 	});
+};
+
+ex.checkbalance = (email) => {
+	return new Promise((resolve,reject) => {
+		authData.checkbalance(email).then(result => {
+			return resolve(result);
+
+		},err => {
+			return reject(err);
+		});
+	});
+};
+
+ex.addmoney = (email,balance) => {
+	return new Promise((resolve,reject) => {
+
+		authData.addmoney(email,balance).then(result => {
+			return resolve(result);
+
+		},err => {
+			return reject(err);
+		});
+	})
+}
+
+
+
+ex.addproduct = (productname,productprice,availablestock) => {
+	return new Promise((resolve, reject) => {
+		// do your buisness login here
+		authData.addproduct(productname,productprice,availablestock).then(result => {
+			return resolve(result);
+		}, err => {
+			return reject(err);
+		});
+	});
+};
+
+
+ex.listproducts = () => {
+	return new Promise((resolve,reject) => {
+		authData.listproducts().then(result => {
+			return resolve(result);
+
+		},err => {
+			return reject(err);
+		});
+	});
+};
+
+
+
+ex.removeproduct = (productname) => {
+	return new Promise((resolve,reject) => {
+		authData.removeproduct(productname).then(result => {
+			return resolve(result);
+		},err => {
+			return reject(err);
+		
+
+		});
+	});
+};
+
+ex.checkstock = (productname) => {
+	return new Promise((resolve,reject) => {
+		authData.checkstock(productname).then(result => {
+			return resolve(result);
+		},err => {
+			return reject(err);
+		
+
+		});
+	});
+
+}
+
+
+
+ex.addtocart = (userId,product) => {
+	return new Promise((resolve, reject) => {
+
+		// do your buisness logic here
+	const k = product.length;
+    console.log(k);
+	let sum = 0;
+	
+		authData.addtocart().then(result => {
+			return resolve(result);
+		}, err => {
+			return reject(err);
+		});
+	});
+};
+
+
+
+
+ex.removefromcart = (userId,productname) => {
+	return new Promise((resolve,reject) => {
+
+		const key = {userId : userId};
+		const query = {$pull: {product: {productname : productname}}};
+
+		authData.removefromcart(key,query).then(result => {
+			return resolve(result);
+		},err => {
+			return reject(err);
+		
+
+		});
+	});
+
 }
 
 module.exports = ex;
