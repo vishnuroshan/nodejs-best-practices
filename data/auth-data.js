@@ -57,13 +57,14 @@ ex.resetpass = (username, oldpass, newpass) => {
 
 		db.collection("Users").findOne({username: username},function(err,res) {
 			if (err) throw err;
-			if(bcrypt.compareSync(oldpass,result))
+			if(bcrypt.compareSync(oldpass,res.hash))
 			{
 				console.log("matched");
-				db.collection("Users").updateOne({username: username},newpass, function(err,res){
+				const newval = { $set:{password : newpass}  };
+				db.collection("Users").updateOne({username: username},newval, function(err,res){
 					if(err) throw err;
 					console.log("document updated");
-					return resolve();
+					return resolve(res);
 				})
 			}
 			else{
@@ -77,8 +78,8 @@ ex.createwallet = (userId, email,balance) => {
 	const t = {userId,email,balance}
 	return new Promise((resolve, reject) => {
 		db.collection("wallets").insertOne({t},function(err,res){
-			if(err) throw reject;
-			resolve(t);
+			if(err) throw err;
+			return resolve(t);
 		});
 		// do something and return the data in resolve
 	});
@@ -88,7 +89,7 @@ ex.checkbalance = (email) => {
 	return new Promise ((resolve,reject) => {
 		db.collection("wallets").findOne({"email" : email},function(err,res){
 			if(err) throw err;
-			resolve(res);
+			return resolve(res.balance);
 		})
 	})
 }
@@ -100,22 +101,14 @@ ex.addmoney = (email,balance) => {
 	return new Promise((resolve,reject) => {
 		db.collection("wallets").updateOne({"email" : email}, {$inc: {"balance": balance}},{upsert: true, safe: false} ,function(error,result) {
 			if(error)
-			throw error;
-			console.log(result.result);
-			//resolve(result.result);
-
-		
+			throw error;		
 			db.collection('wallets').find({"email": email }).toArray(function(error,result){
 				if(error)
 				throw error;
 				console.log(result);
-				resolve(result);
-
+				return resolve(result);
 				});
-
 		} )
-	
-
 	})
 }
 
@@ -125,7 +118,7 @@ ex.addproduct = (productname,productprice,availablestock) => {
 	return new Promise((resolve, reject) => {
 		db.collection("products").insertOne(t,function(err,res){
 			if(err) throw reject;
-			resolve(t);
+			return resolve(t);
 		});
 		// do something and return the data in resolve
 	});
@@ -137,8 +130,7 @@ ex.listproducts = () => {
 	return new Promise ((resolve,reject) => {
 		db.collection('products').find({}).toArray(function(err,res){
 			if(err) throw err;
-			
-			resolve.json(res);
+			return resolve(res);
 		})
 	})
 }
@@ -148,7 +140,8 @@ ex.removeproduct = (productname) => {
 	return new Promise ((resolve,reject)=>{
 		db.collection('products').deleteOne(query,function(err,res){
 			if(err) throw err;
-			console.log(res.result);
+			console.log(res);
+			return resolve(res);
 		})
 	})
 }
@@ -158,8 +151,8 @@ ex.checkstock = (productname) => {
 	return new Promise ((resolve,reject) => {
 		db.collection('products').find(q,function(err,res){
 			if(err) throw err;
-			
 			console.log(res.result);
+			return resolve(res);
 		})
 	})
 }
