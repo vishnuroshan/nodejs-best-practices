@@ -24,8 +24,10 @@ mongoUtil.connectToServer((err) => {
 		res.send('<html><title>Node-mongo-boilerplate</title></html>');
 	});
 	const auth = require('./routes/auth');
+	const wallet = require('./routes/wallet');
 	
 	 app.use('/auth/', auth);
+	 app.use('/wallet',wallet);
 	
 })
 
