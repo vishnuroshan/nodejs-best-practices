@@ -1,52 +1,49 @@
 const router = require('express').Router();
 const bodyParser = require('../middlewares/bodyParser');
 const httpErrors = require('../utils/httpErrors');
-const authLibrary = require('../library/auth-lib');
+const walletLibrary = require('../library/wallet-lib');
 
 router.post('/createwallet', bodyParser, (req, res) => {
 
     console.log(req.body);
-    const userId = req.body.userId;
-    const email = req.body.email;
-    const balance = req.body.balance;
 
-    authLibrary.createwallet(userId, email, balance).then((isAuth) => {
+    walletLibrary.createwallet(req.body.userId, req.body.email, req.body.balance).then((data) => {
         // do something
         console.log(isAuth);
-        res.status(httpErrors.OK.statusCode).send(isAuth);
+        res.status(httpErrors.OK.statusCode).send(data);
 
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.BAD_REQUEST.statusCode).send(httpErrors.BAD_REQUEST);
     });
 
 });
 
 
-router.get('/checkbalance', bodyParser, (req, res) => {
+router.get('/checkbalance/:email', bodyParser, (req, res) => {
     console.log('checkbalance');
-
-    authLibrary.checkbalance(req.params.email).then((isAuth) => {
-        console.log(req.params.email, isAuth);
-        res.status(httpErrors.OK.statusCode).send(isAuth);
+    console.log(req.params.email);
+    walletLibrary.checkbalance(req.params.email).then((data) => {
+        console.log(req.params.email);
+        res.status(httpErrors.Accepted.statusCode).send(data);
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.INTERNAL_SERVER_ERROR.statusCode).send(httpErrors.INTERNAL_SERVER_ERROR);
     });
 });
 
 
 router.post('/addmoney', bodyParser, (req, res) => {
     console.log(req.body);
-    authLibrary.addmoney(req.body.email, req.body.balance).then((isAuth) => {
+    walletLibrary.addmoney(req.body.email, req.body.balance).then((balance) => {
         // do something
-        res.status(httpErrors.OK.statusCode).send(isAuth);
+        res.status(httpErrors.OK.statusCode).send(balance);
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.INTERNAL_SERVER_ERROR.statusCode).send(httpErrors.INTERNAL_SERVER_ERROR);
     });
 });
 

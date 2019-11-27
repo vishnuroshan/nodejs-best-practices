@@ -4,7 +4,6 @@ const http = require('http');
 const port = process.argv[2] || 3000;
 const server = http.createServer();
 const mongoUtil = require('./db/db');
-// const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('./env/env');
 
@@ -15,12 +14,11 @@ const verifyAuthToken = (req, res, next) => {
     if (token === null) return res.sendStatus(401);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
         console.log(err);
-        if (err) return res.sendStatus(402)
+        if (err) return res.sendStatus(402);
         req.email = email;
         next();
     });
 };
-
 
 mongoUtil.connectToServer((err) => {
     if (err) throw err;
@@ -32,6 +30,7 @@ mongoUtil.connectToServer((err) => {
     app.get('/', (req, res) => {
         res.send('<html><title>Node-mongo-boilerplate</title></html>');
     });
+
     const auth = require('./routes/auth');
     const wallet = require('./routes/wallet');
     const products = require('./routes/products');

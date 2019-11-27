@@ -13,7 +13,7 @@ router.get('/myOrders', bodyParser, (req, res) => {
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.BAD_REQUEST.statusCode).send(httpErrors.UNAUTHORIZED);
     });
 });
 

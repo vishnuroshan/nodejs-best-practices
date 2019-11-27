@@ -1,22 +1,17 @@
 const router = require('express').Router();
 const bodyParser = require('../middlewares/bodyParser');
 const httpErrors = require('../utils/httpErrors');
-const authLibrary = require('../library/auth-lib');
+const productLibrary = require('../library/product-lib');
 
 router.post('/addproduct', bodyParser, (req, res) => {
 
-    console.log(req.body);
-    // const productname = req.body.productname;
-    // const productprice = req.body.productprice;
-    // const availablestock = req.body.availablestock;
-
-    authLibrary.createwallet(req.body.productname, req.body.productprice, req.body.availablestock).then((added) => {
+    productLibrary.createwallet(req.body.productname, req.body.productprice, req.body.availablestock).then((added) => {
         console.log(added);
-        res.status(httpErrors.OK.statusCode).send(added);
+        res.status(httpErrors.CREATED.statusCode).send(added);
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.BAD_REQUEST.statusCode).send(httpErrors.BAD_REQUEST);
     });
 
 });
@@ -25,38 +20,38 @@ router.post('/addproduct', bodyParser, (req, res) => {
 router.get('/listproducts', bodyParser, (_req, res) => {
     console.log('listproducts');
 
-    authLibrary.listproducts().then((products) => {
+    productLibrary.listproducts().then((products) => {
         // do something
-        res.status(httpErrors.OK.statusCode).send(products);
+        res.status(httpErrors.Accepted.statusCode).send(products);
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.INTERNAL_SERVER_ERROR.statusCode).send(httpErrors.INTERNAL_SERVER_ERROR);
     });
 });
 
 router.delete('/removeproduct', bodyParser, (req, res) => {
     console.log('removeproduct');
 
-    authLibrary.removeproduct(req.params.productname).then((msg) => {
+    productLibrary.removeproduct(req.params.productname).then((msg) => {
         // do something
         res.status(httpErrors.OK.statusCode).send(msg);
     }, (error) => {
         console.log(error);
         // do something with the error here
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.INTERNAL_SERVER_ERROR.statusCode).send(httpErrors.INTERNAL_SERVER_ERROR);
     });
 });
 
-router.get('/checkstock', bodyParser, (req, res) => {
+router.get('/checkstock/:productname', bodyParser, (req, res) => {
     console.log('checkstock');
 
-    authLibrary.checkstock(req.params.productname).then((items) => {
+    productLibrary.checkstock(req.params.productname).then((items) => {
         console.log(items);
-        res.status(httpErrors.OK.statusCode).send(items);
+        res.status(httpErrors.Accepted.statusCode).send(items);
     }, (error) => {
         console.log(error);
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.INTERNAL_SERVER_ERROR.statusCode).send(httpErrors.INTERNAL_SERVER_ERROR);
 
 
     });

@@ -1,19 +1,17 @@
 const router = require('express').Router();
 const bodyParser = require('../middlewares/bodyParser');
 const httpErrors = require('../utils/httpErrors');
-const authLibrary = require('../library/auth-lib');
+const buyLibrary = require('../library/buy-lib');
 
 router.get('/buy', bodyParser, (req, res) => {
     console.log(req.query);
     const query = req.query;
 
-    authLibrary.get(query).then((data) => {
-
-        // would be better if mesage was sent
+    buyLibrary.get(query).then((data) => {
         res.status(httpErrors.OK.statusCode).send(data);
     }, (error) => {
         console.log(error);
-        res.status(httpErrors.UNAUTHORIZED.statusCode).send(httpErrors.UNAUTHORIZED);
+        res.status(httpErrors.BAD_REQUEST.statusCode).send(httpErrors.BAD_REQUEST);
     });
 
 });
