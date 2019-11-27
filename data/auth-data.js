@@ -5,7 +5,7 @@ const authLibrary = require('../library/auth-lib');
 const db = require('../db/db').getDb();
 const bodyParser = require('../middlewares/bodyParser');
 
-let refreshTokens = []
+
 const ex = {};
 
 ex.signup = (username,email, hash) => {
@@ -13,9 +13,7 @@ const temp = {username,email,hash};
 	return new Promise((resolve, reject) => {
 		db.collection("Users").insertOne(temp, function(err, document) {
 			if(err) throw err;
-			console.log(username, email);
-			console.log("Account created!!!");
-			return resolve();
+			return resolve(username,email);
 		});		
 	});
 };
@@ -28,7 +26,7 @@ ex.login = (username, password) => {
 			if(err) 
 			 { console.log("hlo",err);
 				 throw err};
-			console.log(res.hash);
+			//console.log(res.hash);
 			return resolve(res.hash);			
 		})
 	})
@@ -42,8 +40,11 @@ ex.resetpass = (username, oldpass, newpass) => {
 			if(bcrypt.compareSync(oldpass,res.hash))
 			{
 				console.log("matched");
-				const newval = { $set:{password : newpass}  };
-				db.collection("Users").updateOne({username: username},newval, function(err,res){
+				const hash1 = bcrypt.hashSync(newpass, 10);
+				console.log(hash1);
+				const user = {username : username};
+				const newval = { $set: {hash : hash1}  };
+				db.collection("Users").updateOne(user,newval, function(err,res){
 					if(err) throw err;
 					console.log("document updated");
 					return resolve(res);
@@ -59,7 +60,7 @@ ex.resetpass = (username, oldpass, newpass) => {
 ex.createwallet = (userId, email,balance) => {
 	const t = {userId,email,balance}
 	return new Promise((resolve, reject) => {
-		db.collection("wallets").insertOne({t},function(err,res){
+		db.collection("wallets").insertOne(t,function(err,res){
 			if(err) throw err;
 			return resolve(t);
 		});
@@ -115,12 +116,12 @@ ex.listproducts = () => {
 }
 
 ex.removeproduct = (productname) => {
-	const query = {productname: productname}
+	const query = { productname: productname }
 	return new Promise ((resolve,reject)=>{
 		db.collection('products').deleteOne(query,function(err,res){
 			if(err) throw err;
-			console.log(res);
-			return resolve(res);
+			console.log(res.result);
+			return resolve(res.result);
 		})
 	})
 }
@@ -131,7 +132,7 @@ ex.addtocart = (userId,product) => {
 	let sum = 0;
 	return new Promise ((resolve,reject)=>{
 	for( let i=0;i<k;i++) {
-		db.collection("products").updateMany({product : product[i].productname}, {$inc: {Balance: -product[i].stock}});
+		db.collection("products").updateMany({productname : product[i].productname}, {$inc: {availablestock: -product[i].stock}});
 		console.log(product[i].productname, "got updated")
          const m = product[i].stock * product[i].productprice;
          sum = sum + m; }
@@ -141,7 +142,7 @@ ex.addtocart = (userId,product) => {
 			"total": sum
 			};
 			console.log(sum);
-			db.collection("Carts").insertOne(temp,function(error,result){
+			db.collection("carts").insertOne(temp,function(error,result){
 				if(error)  throw error;
 			   console.log("Data inserted to Carts");
 			   return resolve(result);
@@ -150,10 +151,42 @@ ex.addtocart = (userId,product) => {
 }
 
 ex.removefromcart = (userId,productname) => {
-	const key = {userId : userId};
-	const query = {$pull: {product: {productname : productname}}};
 	return new Promise ((resolve,reject) => {
-		db.collection("carts").update(key,query,function(error,result){
+
+	const key = {userId : userId};
+
+	console.log(productname);
+	const producttemp = productname;
+db.collection("carts").findOne(key,function(err,res){
+	if(err) throw err;
+
+	function productname(array,productname,value){
+		for (var i = 0; i < array.length; i++) {
+			if (array[i][productname] === value) {
+				return array[i];
+	}
+}
+	}
+	const product = productname(res.product,"productname",producttemp);
+	console.log(product.productprice);
+
+	
+	const price = product.productprice;
+	 const stock = product.stock;
+	const tt = price * stock;
+
+
+	 console.log("minus-frm-total",tt);
+	 db.collection("carts").updateMany(key, {$inc: {total: -tt}});
+//	return resolve(res);
+
+
+})
+
+
+	const query = {$pull: {product: {productname : productname}}};
+	
+		db.collection("carts").updateMany(key,query,function(error,result){
             if(error)
            throw error;
          return resolve(result);
