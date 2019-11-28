@@ -9,7 +9,7 @@ const ex = {};
 ex.myOrders = (userId) => {
 	return new Promise((resolve, reject) => {
 		db.collection('myOrders').find({
-			"$oid": userId
+			"userId": userId
 		}).toArray(function (err, res) {
 			if (err) return reject(err);
 			return resolve(res);
