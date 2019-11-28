@@ -12,9 +12,9 @@ ex.addtocart = (userId, product) => {
     });
 };
 
-ex.removefromcart = (userId, product) => {
+ex.removefromcart = (userId, productname) => {
     return new Promise((resolve, reject) => {
-        cartData.removefromcart(userId, product).then(result => {
+        cartData.removefromcart(userId, productname).then(result => {
             return resolve(result);
         }, err => {
             return reject(err);

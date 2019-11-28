@@ -5,7 +5,7 @@ const productLibrary = require('../library/product-lib');
 
 router.post('/addproduct', bodyParser, (req, res) => {
 
-    productLibrary.createwallet(req.body.productname, req.body.productprice, req.body.availablestock).then((added) => {
+    productLibrary.addproduct(req.body.productname, req.body.productprice, req.body.availablestock).then((added) => {
         console.log(added);
         res.status(httpErrors.CREATED.statusCode).send(added);
     }, (error) => {
@@ -30,7 +30,7 @@ router.get('/listproducts', bodyParser, (_req, res) => {
     });
 });
 
-router.delete('/removeproduct', bodyParser, (req, res) => {
+router.delete('/removeproduct/:productname', bodyParser, (req, res) => {
     console.log('removeproduct');
 
     productLibrary.removeproduct(req.params.productname).then((msg) => {

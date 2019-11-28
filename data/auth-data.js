@@ -1,9 +1,6 @@
 require('dotenv').config()
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const authLibrary = require('../library/auth-lib');
 const db = require('../db/db').getDb();
-const bodyParser = require('../middlewares/bodyParser');
 const ex = {};
 
 ex.signup = (username, email, hash) => {
@@ -14,7 +11,7 @@ ex.signup = (username, email, hash) => {
 	};
 	return new Promise((resolve, _reject) => {
 		db.collection("Users").insertOne(temp, function (err, document) {
-			if (err) throw err;
+			if (err) return reject(err);
 			const t = {
 				username: username,
 				email: email
@@ -25,14 +22,14 @@ ex.signup = (username, email, hash) => {
 };
 
 ex.login = (username, password) => {
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		//console.log(password);
 		db.collection("Users").findOne({
 			username: username
 		}, function (err, res) {
 			if (err) {
 				console.log("hlo", err);
-				throw err
+				return reject(err);
 			}
 			return resolve(res.hash);
 		})
@@ -40,13 +37,13 @@ ex.login = (username, password) => {
 }
 
 ex.resetpass = (username, oldpass, newpass) => {
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 
 		db.collection("Users").findOne({
 			username: username
 		}, function (err, res) {
 			console.log(res);
-			if (err) throw err;
+			if (err) return reject(err);
 			console.log(res);
 			if (bcrypt.compareSync(oldpass, res.hash)) {
 				console.log("matched");
@@ -61,7 +58,7 @@ ex.resetpass = (username, oldpass, newpass) => {
 					}
 				};
 				db.collection("Users").updateOne(user, newval, function (err, res) {
-					if (err) throw err;
+					if (err) return reject(err);
 					console.log("document updated");
 					return resolve("Password Updated");
 				})

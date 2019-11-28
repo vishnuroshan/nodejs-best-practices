@@ -6,11 +6,18 @@ const db = require('../db/db').getDb();
 const bodyParser = require('../middlewares/bodyParser');
 const ex = {};
 
+
+function productfunc(array, productname, value) {
+	for (const arr of array) {
+		if (arr[productname] === value) return arr;
+	}
+}
+
 ex.addtocart = (userId, product) => {
 	const k = product.length;
 	console.log(k);
 	let sum = 0;
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		for (let i = 0; i < k; i++) {
 			db.collection("products").updateMany({
 				productname: product[i].productname
@@ -30,15 +37,19 @@ ex.addtocart = (userId, product) => {
 		};
 		console.log(sum);
 		db.collection("carts").insertOne(temp, function (error, result) {
-			if (error) throw error;
+			if (error) return reject(error);
 			console.log("Data inserted to Carts");
-			return resolve(result);
+			//return resolve(result);
+			db.collection("carts").findOne({userId:userId},function(err,res){
+				if(err) return reject(err);
+				return resolve(res);
+			})
 		})
 	})
 }
 
 ex.removefromcart = (userId, productname) => {
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 
 		const key = {
 			userId: userId
@@ -46,13 +57,9 @@ ex.removefromcart = (userId, productname) => {
 		console.log(productname);
 		const producttemp = productname;
 		db.collection("carts").findOne(key, function (err, res) {
-			if (err) throw err;
-			function productname(array, productname, value) {
-				for (const arr of array) {
-					if (arr[productname] === value) return arr;
-				}
-			}
-			const product = productname(res.product, "productname", producttemp);
+			if (err) return reject(err);
+			
+			const product = productfunc(res.product, "productname", producttemp);
 			console.log(product.productprice);
 
 			const price = product.productprice;
@@ -76,8 +83,12 @@ ex.removefromcart = (userId, productname) => {
 		};
 		db.collection("carts").updateMany(key, query, function (error, result) {
 			if (error)
-				throw error;
-			return resolve(result);
+				return reject(error);
+			//return resolve(result);
+		})
+		db.collection("carts").findOne({userId:userId},function(err,res){
+			if(err) return reject(err);
+			return resolve(res);
 		})
 	})
 }

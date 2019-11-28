@@ -1,19 +1,15 @@
 require('dotenv').config()
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const buyLibrary = require('../library/buy-lib');
 const db = require('../db/db').getDb();
 const ex = {};
 
 ex.buy = (query) => {
 	const userId = query.userId;
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		if (query.cartId) {
-			const cartId = query.cartId;
 			db.collection("carts").findOne({
 				"userId": userId
 			}, function (err, res) {
-				if (err) throw err;
+				if (err) return reject(err);
 				db.collection("wallets").updateMany({
 					userId: userId
 				}, {
@@ -22,7 +18,7 @@ ex.buy = (query) => {
 					}
 				})
 				db.collection("myOrders").insertOne(res, (error, result) => {
-					if (error) throw error;
+					if(error) return reject(error)
 					console.log(result);
 				});
 				console.log("history");
@@ -31,9 +27,9 @@ ex.buy = (query) => {
 			});
 
 		} else {
-			const productname = req.query.productname;
-			const productprice = req.query.productprice;
-			const productstock = req.query.productstock;
+			const productname = query.productname;
+			const productprice = query.productprice;
+			const productstock =query.productstock;
 			const sum = productstock * productprice;
 
 			console.log(sum);
@@ -56,7 +52,7 @@ ex.buy = (query) => {
 
 			db.collection("myOrders").insertOne(temp, function (error, result) {
 				if (error)
-					throw error;
+					return reject(error);
 				return resolve(result);
 			})
 		}

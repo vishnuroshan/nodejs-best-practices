@@ -12,9 +12,9 @@ router.post('/addtocart', bodyParser, (req, res) => {
 	console.log(req.body)
 	const userId = req.body.userId;
 	const product = req.body.product;
-	cartLibrary.addtocart(userId, product).then(isAuth => {
+	cartLibrary.addtocart(userId, product).then(Data => {
 		// do something
-		res.status(httpErrors.OK.statusCode).send(isAuth);
+		res.status(httpErrors.OK.statusCode).send(Data);
 	}, error => {
 		console.log(error);
 		// do something with the error here
@@ -22,29 +22,17 @@ router.post('/addtocart', bodyParser, (req, res) => {
 	});
 
 })
+router.post("/removefromcart",bodyParser,(req,res) => {
+	cartLibrary.removefromcart(req.body.userId,req.body.productname).then(msg => {
 
-router.delete('/removeproduct', bodyParser, (req, res) => {
-	console.log("removeproducts");
-
-	cartLibrary.removeproduct(req.params.productname).then(msg => {
-		// do something
 		res.status(httpErrors.OK.statusCode).send(msg);
 	}, error => {
-		console.log(error);
 		// do something with the error here
 		res.status(httpErrors.INTERNAL_SERVER_ERROR.statusCode).send(httpErrors.INTERNAL_SERVER_ERROR);
 	});
-});
 
-router.get('/checkstock/:productname', bodyParser, (req, res) => {
-	console.log("checkstock");
+	
+})
 
-	cartLibrary.checkstock(req.params.productname).then(data => {
-		res.status(httpErrors.OK.statusCode).send(data);
-	}, error => {
-		console.log(error);
-		res.status(httpErrors.BAD_REQUEST.statusCode).send(httpErrors.BAD_REQUEST);
-	});
-});
 
 module.exports = router;

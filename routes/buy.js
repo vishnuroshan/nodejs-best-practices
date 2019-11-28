@@ -3,11 +3,11 @@ const bodyParser = require('../middlewares/bodyParser');
 const httpErrors = require('../utils/httpErrors');
 const buyLibrary = require('../library/buy-lib');
 
-router.get('/buy', bodyParser, (req, res) => {
-    console.log(req.query);
-    const query = req.query;
+router.post('/buy', bodyParser, (req, res) => {
+    console.log(req.body);
+    const query = req.body;
 
-    buyLibrary.get(query).then((data) => {
+    buyLibrary.buy(query).then((data) => {
         res.status(httpErrors.OK.statusCode).send(data);
     }, (error) => {
         console.log(error);

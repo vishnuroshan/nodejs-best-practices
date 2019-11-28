@@ -7,11 +7,11 @@ const bodyParser = require('../middlewares/bodyParser');
 const ex = {};
 
 ex.myOrders = (userId) => {
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		db.collection('myOrders').find({
 			"$oid": userId
 		}).toArray(function (err, res) {
-			if (err) throw err;
+			if (err) return reject(err);
 			return resolve(res);
 		})
 	})

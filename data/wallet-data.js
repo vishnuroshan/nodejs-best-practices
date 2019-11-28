@@ -12,9 +12,9 @@ ex.createwallet = (userId, email, balance) => {
 		email,
 		balance
 	}
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		db.collection("wallets").insertOne(t, function (err, _res) {
-			if (err) throw err;
+			if (err) return reject(err);
 			return resolve(t);
 		});
 		// do something and return the data in resolve
@@ -23,11 +23,11 @@ ex.createwallet = (userId, email, balance) => {
 
 ex.checkbalance = (email) => {
 	console.log(email);
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		db.collection("wallets").findOne({
 			email: email
 		}, function (err, res) {
-			if (err) throw err;
+			if (err) return reject(err);
 			console.log(res);
 			return resolve(res);
 		})
@@ -37,7 +37,7 @@ ex.checkbalance = (email) => {
 ex.addmoney = (email, balance) => {
 	console.log(email);
 	console.log(balance);
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		db.collection("wallets").updateOne({
 			"email": email
 		}, {
@@ -49,19 +49,17 @@ ex.addmoney = (email, balance) => {
 			safe: false
 		}, function (error, _result) {
 			if (error)
-				throw error;
+				return reject(error);
 			db.collection('wallets').find({
 				"email": email
 			}).toArray(function (error, result) {
 				if (error)
-					throw error;
+					return reject(error);
 				console.log(result);
 				return resolve(result);
 			});
 		})
 	})
 }
-
-
 
 module.exports = ex;
