@@ -1,15 +1,18 @@
 const router = require('express').Router();
 const bodyParser = require('../middlewares/bodyParser');
 const httpErrors = require('../utils/httpErrors');
-const authLibrary = require('../library/auth-lib');
+const walletLibrary = require('../library/wallet-lib');
 
-router.post('/signup', bodyParser, (req, res) => {
-    
-    authLibrary.signup(req.body.username, req.body.email, req.body.password).then((isAuth) => {
+router.post('/createwallet', bodyParser, (req, res) => {
+
+    console.log(req.body);
+
+    walletLibrary.createwallet(req.body.userId, req.body.email, req.body.balance).then((data) => {
         // do something
-        res.status(httpErrors.OK.statusCode).send(isAuth);
         console.log(isAuth);
-    }, (error) => { 
+        res.status(httpErrors.OK.statusCode).send(data);
+
+    }, (error) => {
         console.log(error);
         // do something with the error here
         res.status(httpErrors.BAD_REQUEST.statusCode).send(httpErrors.BAD_REQUEST);
@@ -17,12 +20,13 @@ router.post('/signup', bodyParser, (req, res) => {
 
 });
 
-router.post('/login', bodyParser, (req, res) => {
-    // console.log(req.body);
-    authLibrary.login(req.body.username, req.body.password).then((isAuth) => {
-        // do something
-        res.status(httpErrors.OK.statusCode).send(isAuth);
-        // console.log(isAuth);
+
+router.get('/checkbalance/:email', bodyParser, (req, res) => {
+    console.log('checkbalance');
+    console.log(req.params.email);
+    walletLibrary.checkbalance(req.params.email).then((data) => {
+        console.log(req.params.email);
+        res.status(httpErrors.Accepted.statusCode).send(data);
     }, (error) => {
         console.log(error);
         // do something with the error here
@@ -31,12 +35,11 @@ router.post('/login', bodyParser, (req, res) => {
 });
 
 
-
-router.post('/resetpass', bodyParser, (req, res) => {
+router.post('/addmoney', bodyParser, (req, res) => {
     console.log(req.body);
-    authLibrary.resetpass(req.body.username, req.body.oldpass, req.body.newpass).then((msg) => {
+    walletLibrary.addmoney(req.body.email, req.body.balance).then((balance) => {
         // do something
-        res.status(httpErrors.OK.statusCode).send(msg);
+        res.status(httpErrors.OK.statusCode).send(balance);
     }, (error) => {
         console.log(error);
         // do something with the error here
